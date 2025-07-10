@@ -1,0 +1,62 @@
+Frame,Gender,Progenitor,Prime,Exalted,Roles,Protoframe,Release
+Trinity,Female,Cold,Yes,No,Supp,Yes,2012-10-25
+Excalibur,Male,Electricity,Yes,Yes,DMG,Yes,2012-10-25
+Volt,Male,Electricity,Yes,No,DMG,Yes,2012-10-25
+Ember,Female,Heat,Yes,No,DMG,No,2012-10-25
+Rhino,Male,Impact,Yes,No,"CC, Survival",No,2012-10-25
+Mag,Female,Magnetic,Yes,No,CC,Yes,2012-10-25
+Ash,Male,Radiation,Yes,Yes,Stealth,No,2012-10-25
+Loki,Male,Radiation,Yes,No,Stealth,No,2012-10-25
+Frost,Male,Cold,Yes,No,"CC, Survival",Yes,2013-01-29
+Nyx,Female,Radiation,Yes,No,CC,Yes,2013-01-29
+Banshee,Female,Electricity,Yes,No,CC,No,2013-03-18
+Saryn,Female,Toxin,Yes,No,DMG,Yes,2013-03-18
+Vauban,Male,Heat,Yes,No,CC,No,2013-05-17
+Nova,Female,Electricity,Yes,No,"CC, DMG",Yes,2013-07-13
+Nekros,Male,Toxin,Yes,No,CC,No,2013-09-13
+Valkyr,Female,Electricity,Yes,Yes,"DMG, Survival",No,2013-11-20
+Oberon,Male,Toxin,Yes,No,Supp,No,2013-12-19
+Zephyr,Female,Impact,Yes,No,"CC, DMG",No,2014-02-05
+Hydroid,Male,Magnetic,Yes,No,CC,No,2014-04-09
+Mirage,Female,Radiation,Yes,No,DMG,No,2014-07-18
+Limbo,Male,Electricity,Yes,No,CC,No,2014-10-24
+Mesa,Female,Magnetic,Yes,Yes,DMG,No,2014-11-27
+Chroma,Male,Heat,Yes,No,"DMG, Survival",No,2015-03-19
+Equinox,Female,Radiation,Yes,No,Supp,No,2015-07-31
+Atlas,Male,Toxin,Yes,Yes,DMG,No,2015-10-01
+Wukong,Male,Impact,Yes,Yes,"DMG, Survival",No,2015-11-25
+Ivara,Female,Toxin,Yes,Yes,Stealth,No,2015-12-03
+Nezha,Male,Heat,Yes,No,"CC, DMG, Survival",No,2015-12-16
+Inaros,Male,Heat,Yes,No,Survival,No,2016-03-04
+Titania,Female,Cold,Yes,Yes,"CC, DMG",No,2016-08-19
+Nidus,Male,Toxin,Yes,No,"CC, DMG, Survival",No,2016-12-22
+Octavia,Female,Radiation,Yes,No,"Supp, Survival",No,2017-03-24
+Harrow,Male,Magnetic,Yes,No,Supp,No,2017-06-29
+Gara,Female,Cold,Yes,Yes,"DMG, Survival",No,2017-10-12
+Khora,Female,Toxin,Yes,Yes,"CC, DMG",No,2018-04-20
+Revenant,Male,Cold,Yes,No,"DMG, Survival",No,2018-08-24
+Garuda,Female,Radiation,Yes,Yes,DMG,No,2018-11-08
+Baruuk,Male,Impact,Yes,Yes,"CC, Survival",No,2018-12-18
+Hildryn,Female,Cold,Yes,Yes,DMG,No,2019-03-08
+Wisp,Female,Heat,Yes,No,Supp,No,2019-05-22
+Gauss,Male,Impact,Yes,No,"DMG, Survival",No,2019-08-29
+Grendel,Male,Impact,Yes,No,Survival,No,2019-10-31
+Protea,Female,Heat,Yes,No,"DMG, Supp",No,2020-06-11
+Xaku,Pluriform,Magnetic,Yes,No,DMG,No,2020-08-25
+Lavos,Male,Magnetic,Yes,No,DMG,No,2020-12-18
+Sevagoth,Male,Impact,Yes,Yes,"DMG, Survival",No,2021-04-13
+Yareli,Female,Magnetic,Yes,No,DMG,No,2021-07-06
+Caliban,Male,Electricity,No,No,"CC, Survival",No,2021-12-15
+Gyre,Female,Electricity,No,No,CC,No,2022-04-27
+Styanax,Male,Cold,No,No,DMG,No,2022-09-07
+Voruna,Female,Radiation,No,No,"DMG, Stealth",No,2022-11-30
+Citrine,Female,Magnetic,No,No,Supp,No,2023-02-15
+Kullervo,Male,Heat,No,No,DMG,No,2023-06-21
+Dagath,Female,Toxin,No,No,DMG,No,2023-10-18
+Qorvex,Male,Radiation,No,No,"CC, Survival",No,2023-12-13
+Dante,Male,Impact,No,Yes,"DMG, Supp",No,2024-03-27
+Jade,Female,Heat,No,Yes,Supp,No,2024-06-18
+Koumei,Female,Cold,No,No,"DMG, Survival",No,2024-10-02
+Cyte-09,Male,Magnetic,No,Yes,"DMG, Stealth",Yes,2024-12-13
+Temple,Male,Heat,No,Yes,"DMG, Supp",Yes,2025-03-19
+Oraxia,Female,Toxin,No,No,"DMG, Stealth",Yes,2025-06-26

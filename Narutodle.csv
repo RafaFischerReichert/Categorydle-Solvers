@@ -1,0 +1,106 @@
+Character,Gender,Affiliation,Jutsu Types,Kekkei Genkai,Release Types,Attributes,Debut Arc
+Sasuke,Male,"Akatsuki, Konoha, Oto","Gen, Nin, Tai",Dojutsu,"Do, Ka, Rai, Sui, Fu",Missing-nin,01. Prologue — Land of Waves
+Haku,Male,Kiri,"Nin, Tai",Nature Transformation,"Sui, Fu",Mercenary,01. Prologue — Land of Waves
+Zabuza,Male,Kiri,"Nin, Tai",None,Sui,"Mercenary, Missing-nin",01. Prologue — Land of Waves
+Ebisu,Male,Konoha,"Nin, Tai",None,Ka,None,01. Prologue — Land of Waves
+Hiruzen,Male,Konoha,Nin,None,"Do, Ka, Rai, Sui, Fu",None,01. Prologue — Land of Waves
+Iruka,Male,Konoha,"Gen, Nin",None,"Ka, Sui",None,01. Prologue — Land of Waves
+Kakashi,Male,Konoha,"Gen, Nin, Tai",Dojutsu,"Do, Ka, Rai, Sui, Fu",None,01. Prologue — Land of Waves
+Konohamaru,Male,Konoha,"Nin, Tai",None,"Ka, Rai, Fu",None,01. Prologue — Land of Waves
+Kurama,Other,Konoha,Nin,None,"Ka, Fu","Sage, Bijuu",01. Prologue — Land of Waves
+Naruto,Male,Konoha,"Nin, Tai",Nature Transformation,"Do, Ka, Rai, Sui, Fu","Jinchuriki, Sage",01. Prologue — Land of Waves
+Pakkun,Male,Konoha,None,None,None,Summon,01. Prologue — Land of Waves
+Sakura,Female,Konoha,"Nin, Tai",None,"Do, Ka, Sui",Medical-nin,01. Prologue — Land of Waves
+Teuchi,Male,Konoha,None,None,None,None,01. Prologue — Land of Waves
+Kabuto,Male,"Akatsuki, Konoha, Oto","Gen, Nin",Body Enhancement,"Do, Sui, Fu","Medical-nin, Missing-nin, Sage",02. Chunin Exams
+Orochimaru,Male,"Akatsuki, Konoha, Oto","Nin, Tai","Body Enhancement, Nature Transformation","Do, Ka, Rai, Sui, Fu",Missing-nin,02. Chunin Exams
+Akamaru,Male,Konoha,None,None,None,None,02. Chunin Exams
+Asuma,Male,Konoha,"Nin, Tai",None,"Ka, Fu",None,02. Chunin Exams
+Choji,Male,Konoha,"Nin, Tai",None,"Do, Ka",None,02. Chunin Exams
+Gamabunta,Male,Konoha,Nin,None,Sui,Summon,02. Chunin Exams
+Genma,Male,Konoha,Nin,None,None,None,02. Chunin Exams
+Hayate,Male,Konoha,"Gen, Nin, Tai",None,None,None,02. Chunin Exams
+Hiashi,Male,Konoha,Tai,Dojutsu,None,None,02. Chunin Exams
+Hinata,Female,Konoha,"Nin, Tai",Dojutsu,"Ka, Rai",None,02. Chunin Exams
+Homura,Male,Konoha,None,None,None,None,02. Chunin Exams
+Ino,Female,Konoha,Nin,None,"Do, Ka, Sui",Medical-nin,02. Chunin Exams
+Jiraiya,Male,Konoha,Nin,None,"Do, Ka, Sui, Fu",Sage,02. Chunin Exams
+Kiba,Male,Konoha,"Nin, Tai",None,Do,None,02. Chunin Exams
+Koharu,Female,Konoha,None,None,None,None,02. Chunin Exams
+Kurenai,Female,Konoha,Gen,None,None,None,02. Chunin Exams
+Might Guy,Male,Konoha,"Nin, Tai",None,"Ka, Rai",None,02. Chunin Exams
+Neji,Male,Konoha,"Nin, Tai",Dojutsu,"Do, Ka, Sui",None,02. Chunin Exams
+Rock Lee,Male,Konoha,Tai,None,None,None,02. Chunin Exams
+Shikamaru,Male,Konoha,Nin,None,"Do, Ka",None,02. Chunin Exams
+Shino,Male,Konoha,"Nin, Tai",None,"Do, Ka",None,02. Chunin Exams
+Tenten,Female,Konoha,"Nin, Tai",None,None,None,02. Chunin Exams
+Tayuya,Female,Oto,"Gen, Nin, Tai",None,None,None,02. Chunin Exams
+Baki,Male,Suna,"Nin, Tai",None,Fu,None,02. Chunin Exams
+Gaara,Male,Suna,"Nin, Tai",Nature Transformation,"Do, Rai, Fu",Jinchuriki,02. Chunin Exams
+Kankuro,Male,Suna,Nin,None,"Do, Rai, Sui, Fu",None,02. Chunin Exams
+Temari,Female,Suna,"Nin, Tai",None,Fu,None,02. Chunin Exams
+Choza,Male,Konoha,"Nin, Tai",None,None,None,03. Konoha Crush
+Gamakichi,Male,Konoha,Nin,None,"Ka, Sui","Sage, Summon",03. Konoha Crush
+Hashirama,Male,Konoha,"Gen, Nin, Tai",Nature Transformation,"Do, Ka, Rai, Sui, Fu",Sage,03. Konoha Crush
+Inoichi,Male,Konoha,Nin,None,Sui,None,03. Konoha Crush
+Shikaku,Male,Konoha,Nin,None,None,None,03. Konoha Crush
+Tobirama,Male,Konoha,"Gen, Nin, Tai",None,"Do, Ka, Rai, Sui, Fu",None,03. Konoha Crush
+Kisame,Male,"Akatsuki, Kiri","Nin, Tai",None,"Do, Ka, Sui, Fu",Missing-nin,04. Search for Tsunade
+Itachi,Male,"Akatsuki, Konoha","Gen, Nin, Tai",Dojutsu,"Ka, Sui, Fu",Missing-nin,04. Search for Tsunade
+Fugaku,Male,Konoha,"Gen, Nin",Dojutsu,Ka,None,04. Search for Tsunade
+Gamatatsu,Male,Konoha,None,None,Sui,Summon,04. Search for Tsunade
+Katsuyu,Other,Konoha,None,None,None,Summon,04. Search for Tsunade
+Mikoto,Female,Konoha,Nin,None,None,None,04. Search for Tsunade
+Shizune,Female,Konoha,Nin,None,None,Medical-nin,04. Search for Tsunade
+Tsunade,Female,Konoha,"Gen, Nin, Tai",None,"Do, Ka, Rai, Sui",Medical-nin,04. Search for Tsunade
+Black Zetsu,Other,Akatsuki,Nin,"Dojutsu, Nature Transformation","Do, Ka, Rai, Sui, Fu",Jinchuriki,05. Sasuke Recovery Mission
+Kimimaro,Male,Oto,"Nin, Tai",Body Enhancement,None,None,05. Sasuke Recovery Mission
+Obito,Male,"Akatsuki, Kiri, Konoha","Gen, Nin, Tai","Dojutsu, Nature Transformation","Do, Ka, Rai, Sui, Fu","Jinchuriki, Missing-nin",06. Kakashi Gaiden
+Minato,Male,Konoha,Nin,None,"Ka, Rai, Fu","Jinchuriki, Sage",06. Kakashi Gaiden
+Rin,Female,Konoha,Nin,None,"Ka, Sui","Jinchuriki, Medical-nin",06. Kakashi Gaiden
+Deidara,Male,"Akatsuki, Iwa",Nin,Nature Transformation,"Do, Rai","Mercenary, Missing-nin",07. Kazekage Rescue Mission
+Sasori,Male,"Akatsuki, Suna",Nin,None,None,Missing-nin,07. Kazekage Rescue Mission
+Danzo,Male,Konoha,"Gen, Nin, Tai","Dojutsu, Nature Transformation","Do, Ka, Sui, Fu",None,07. Kazekage Rescue Mission
+Sai,Male,Konoha,"Nin, Tai",None,"Do, Ka, Sui",None,07. Kazekage Rescue Mission
+Chiyo,Female,Suna,"Nin, Tai",None,None,Medical-nin,07. Kazekage Rescue Mission
+Yamato,Male,Konoha,"Nin, Tai",Nature Transformation,"Do, Sui",None,08. Tenchi Bridge Recon Mission
+Kakuzu,Male,"Akatsuki, Taki","Nin, Tai",None,"Do, Ka, Rai, Sui, Fu",Missing-nin,09. Akatsuki Suppression Mission
+Hidan,Male,"Akatsuki, Yu",Nin,None,None,Missing-nin,09. Akatsuki Suppression Mission
+Yugito,Female,Kumo,"Nin, Tai",None,Ka,Jinchuriki,09. Akatsuki Suppression Mission
+Konan,Female,"Akatsuki, Ame",Nin,None,"Do, Sui, Fu",None,10. Itachi Pursuit MIssion
+Suigetsu,Male,"Akatsuki, Kiri, Oto","Nin, Tai",None,"Sui, Fu",None,10. Itachi Pursuit MIssion
+Karin,Female,"Akatsuki, Kusa, Oto",Nin,None,"Do, Sui",None,10. Itachi Pursuit MIssion
+Jugo,Male,"Akatsuki, Oto",None,Body Enhancement,"Do, Sui, Fu",Sage,10. Itachi Pursuit MIssion
+Nagato,Male,"Akatsuki, Ame",Nin,Dojutsu,"Do, Ka, Rai, Sui, Fu",None,11. Tale of Jiraiya the Gallant
+Yahiko,Male,"Akatsuki, Ame",Nin,None,"Ka, Sui, Fu",None,11. Tale of Jiraiya the Gallant
+Madara,Male,"Akatsuki, Konoha","Gen, Nin, Tai","Dojutsu, Nature Transformation","Do, Ka, Rai, Sui, Fu","Jinchuriki, Missing-nin, Sage",11. Tale of Jiraiya the Gallant
+Hanzo,Male,Ame,Nin,None,Ka,None,11. Tale of Jiraiya the Gallant
+Fukasaku,Male,Konoha,"Gen, Nin",None,"Sui, Fu","Sage, Summon",11. Tale of Jiraiya the Gallant
+Shima,Female,Konoha,"Gen, Nin",None,"Ka, Fu","Sage, Summon",11. Tale of Jiraiya the Gallant
+Kushina,Female,"Konoha, Uzushio",Nin,None,"Sui, Fu",Jinchuriki,11. Tale of Jiraiya the Gallant
+Killer B,Male,Kumo,"Nin, Tai",None,"Ka, Rai, Su",Jinchuriki,12. Fated Battle Between Brothers
+Izuna,Male,None,"Gen, Nin",Dojutsu,Ka,None,12. Fated Battle Between Brothers
+Sakumo,Male,Konoha,Nin,None,None,None,13. Pain's Assault
+A,Male,Kumo,"Nin, Tai",None,"Do, Rai, Sui",None,13. Pain's Assault
+Gyuki,Other,Kumo,Nin,None,None,Bijuu,13. Pain's Assault
+Karui,Female,Kumo,None,None,Rai,None,13. Pain's Assault
+Omoi,Male,Kumo,Nin,None,Rai,None,13. Pain's Assault
+Samui,Female,Kumo,None,None,None,None,13. Pain's Assault
+Onoki,Male,Iwa,Nin,Nature Transformation,"Do, Ka, Rai, Fu",None,14. Five Kage Summit
+Ao,Male,Kiri,"Gen, Nin, Tai",Dojutsu,Sui,None,14. Five Kage Summit
+Chojuro,Male,Kiri,Nin,None,Sui,None,14. Five Kage Summit
+Mei,Female,Kiri,"Nin, Tai",Nature Transformation,"Do, Ka, Rai, Sui",None,14. Five Kage Summit
+Yagura,Male,Kiri,Nin,None,"Sui, Fu",Jinchuriki,14. Five Kage Summit
+Shisui,Male,Konoha,"Gen, Nin, Tai",Dojutsu,"Ka, Rai, Fu",None,14. Five Kage Summit
+Darui,Male,Kumo,"Nin, Tai",Nature Transformation,"Rai, Sui, Fu",None,14. Five Kage Summit
+Mifune,Male,Land of Iron,None,None,None,None,14. Five Kage Summit
+Asura,Male,None,"Nin, Tai",Nature Transformation,"Do, Ka, Rai, Sui, Fu",Sage,14. Five Kage Summit
+Indra,Male,None,"Gen, Nin, Tai",Dojutsu,"Ka, Rai",None,14. Five Kage Summit
+Ten-Tails,Other,None,Nin,Nature Transformation,"Do, Ka, Rai, Sui, Fu",Bijuu,14. Five Kage Summit
+Mu,Male,Iwa,Nin,Nature Transformation,"Do, Ka, Rai, Sui, Fu",None,15. Fourth Shinobi World War: Countdown
+Utakata,Male,Kiri,Nin,None,Sui,"Jinchuriki, Missing-nin",15. Fourth Shinobi World War: Countdown
+Mito,Female,"Konoha, Uzushio",Nin,None,None,Jinchuriki,15. Fourth Shinobi World War: Countdown
+Gengetsu,Male,Kiri,"Gen, Nin, Tai",None,"Do, Ka, Rai, Sui",None,16. Fourth Shinobi World War: Confrontation
+Hagoromo,Male,None,Nin,Dojutsu,"Do, Ka, Rai, Sui, Fu","Jinchuriki, Sage",17. Fourth Shinobi World War: Climax
+Might Duy,Male,Konoha,Tai,None,None,None,18. Birth of the Ten-Tails' Jinchūriki
+Kaguya,Female,None,Nin,Dojutsu,"Do, Ka, Rai, Sui, Fu",None,19. Kaguya Ōtsutsuki Strikes
