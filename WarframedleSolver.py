@@ -4,6 +4,7 @@ from typing import List, Tuple
 class Warframedle(GameDleSolver):
     def __init__(self):
         super().__init__("Warframedle.csv", "Frame")
+        self.preprocess_data()
     
     def preprocess_data(self):
         """Modify the Release field to only use the first four characters (year)."""

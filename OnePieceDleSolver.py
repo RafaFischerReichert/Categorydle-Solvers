@@ -30,7 +30,7 @@ class OnePieceDleSolver(GameDleSolver):
         ]
     
     def get_display_name(self) -> str:
-        return "OnePieceDle"
+        return "Onepiecedle"
     
     def _extract_arc_number(self, arc_string: str) -> int:
         """Extract the numeric prefix from arc string (e.g., '01. Romance Dawn' -> 1)"""

@@ -1,8 +1,159 @@
 import pandas as pd
 import math
 import random
+import json
+import os
+import concurrent.futures
 from abc import ABC, abstractmethod
 from typing import Dict, List, Any, Optional, Tuple
+
+# Top-level function for parallel entropy calculation
+def calculate_entropy_for_guess_parallel(args):
+    """
+    Calculate entropy for a single guess in a separate process.
+    This function must be at module level for multiprocessing.
+    """
+    data, target_column, yes_or_no, orderable, partial_matchable, guess_target, all_targets = args
+    
+    expected_entropy = 0
+    total_outcomes = 0
+    
+    for target in all_targets:
+        feedback = simulate_feedback_parallel(data, target_column, yes_or_no, orderable, partial_matchable, guess_target, target)
+        remaining_count = count_remaining_targets_after_feedback_parallel(data, target_column, yes_or_no, orderable, partial_matchable, guess_target, feedback, all_targets)
+        
+        if remaining_count > 0:
+            p = remaining_count / len(all_targets)
+            expected_entropy += p * math.log2(remaining_count)
+            total_outcomes += 1
+    
+    if total_outcomes > 0:
+        expected_entropy /= total_outcomes
+    
+    return guess_target, expected_entropy
+
+def simulate_feedback_parallel(data, target_column, yes_or_no, orderable, partial_matchable, guess_target, target):
+    """Simulate feedback for parallel processing"""
+    guess_data = data[data[target_column] == guess_target].iloc[0]
+    target_data = data[data[target_column] == target].iloc[0]
+    
+    feedback = {}
+    
+    # Target name
+    feedback[target_column.lower()] = 'correct' if guess_target == target else 'incorrect'
+    
+    # Yes/No categories
+    for category in yes_or_no:
+        feedback[category.lower()] = 'correct' if guess_data[category] == target_data[category] else 'incorrect'
+    
+    # Orderable categories
+    for category in orderable:
+        if target_data[category] < guess_data[category]:
+            feedback[category.lower()] = 'lower'
+        elif target_data[category] > guess_data[category]:
+            feedback[category.lower()] = 'higher'
+        else:
+            feedback[category.lower()] = 'correct'
+    
+    # Partial matchable categories
+    for category in partial_matchable:
+        guess_value = guess_data[category]
+        target_value = target_data[category]
+        
+        if ',' in str(guess_value) or ',' in str(target_value):
+            guess_values = set(val.strip() for val in str(guess_value).split(','))
+            target_values = set(val.strip() for val in str(target_value).split(','))
+            
+            if guess_values == target_values:
+                feedback[category.lower()] = 'correct'
+            elif guess_values & target_values:
+                feedback[category.lower()] = 'partial'
+            else:
+                feedback[category.lower()] = 'incorrect'
+        else:
+            if guess_value == target_value:
+                feedback[category.lower()] = 'correct'
+            else:
+                feedback[category.lower()] = 'incorrect'
+    
+    return feedback
+
+def count_remaining_targets_after_feedback_parallel(data, target_column, yes_or_no, orderable, partial_matchable, guess_target, feedback, possible_targets):
+    """Count remaining targets for parallel processing"""
+    remaining_count = 0
+    
+    for target in possible_targets:
+        if target_compatible_with_feedback_parallel(data, target_column, yes_or_no, orderable, partial_matchable, target, guess_target, feedback):
+            remaining_count += 1
+    
+    return remaining_count
+
+def target_compatible_with_feedback_parallel(data, target_column, yes_or_no, orderable, partial_matchable, target, guess_target, feedback):
+    """Check target compatibility for parallel processing"""
+    target_data = data[data[target_column] == target].iloc[0]
+    guess_data = data[data[target_column] == guess_target].iloc[0]
+    
+    # Check target name feedback
+    if feedback.get(target_column.lower()) == 'correct':
+        return target == guess_target
+    elif feedback.get(target_column.lower()) == 'incorrect':
+        if target == guess_target:
+            return False
+    
+    # Check yes/no categories
+    for category in yes_or_no:
+        feedback_key = category.lower()
+        if feedback_key in feedback:
+            if feedback[feedback_key] == 'correct':
+                if target_data[category] != guess_data[category]:
+                    return False
+            elif feedback[feedback_key] == 'incorrect':
+                if target_data[category] == guess_data[category]:
+                    return False
+    
+    # Check orderable categories
+    for category in orderable:
+        feedback_key = category.lower()
+        if feedback_key in feedback:
+            if feedback[feedback_key] == 'lower':
+                if target_data[category] >= guess_data[category]:
+                    return False
+            elif feedback[feedback_key] == 'higher':
+                if target_data[category] <= guess_data[category]:
+                    return False
+            elif feedback[feedback_key] == 'correct':
+                if target_data[category] != guess_data[category]:
+                    return False
+    
+    # Check partial matchable categories
+    for category in partial_matchable:
+        feedback_key = category.lower()
+        if feedback_key in feedback:
+            target_value = target_data[category]
+            guess_value = guess_data[category]
+            
+            if feedback[feedback_key] == 'correct':
+                if target_value != guess_value:
+                    return False
+            elif feedback[feedback_key] == 'incorrect':
+                if ',' in str(target_value) and ',' in str(guess_value):
+                    target_values = set(val.strip() for val in str(target_value).split(','))
+                    guess_values = set(val.strip() for val in str(guess_value).split(','))
+                    if target_values & guess_values:
+                        return False
+                elif target_value == guess_value:
+                    return False
+            elif feedback[feedback_key] == 'partial':
+                if ',' in str(target_value) and ',' in str(guess_value):
+                    target_values = set(val.strip() for val in str(target_value).split(','))
+                    guess_values = set(val.strip() for val in str(guess_value).split(','))
+                    overlap = target_values & guess_values
+                    if not overlap or target_values == guess_values:
+                        return False
+                else:
+                    return False
+    
+    return True
 
 class GameDleSolver(ABC):
     """
@@ -22,6 +173,7 @@ class GameDleSolver(ABC):
         self.target_column = target_column
         self.possible_targets = self.data.copy()
         self.entropy_cache = {}
+        self.optimal_first_guesses = None
         
         # Validate that target column exists
         if target_column not in self.data.columns:
@@ -29,6 +181,9 @@ class GameDleSolver(ABC):
         
         # Define category types based on the CSV structure
         self._define_category_types()
+        
+        # Load optimal first guesses
+        self._load_optimal_first_guesses()
     
     @abstractmethod
     def _define_category_types(self):
@@ -184,10 +339,74 @@ class GameDleSolver(ABC):
         """
         Find the optimal guess by minimizing expected entropy.
         Returns the target that would provide the most information gain.
+        Uses parallel processing for faster calculation.
         """
         if len(self.possible_targets) <= 1:
             return self.possible_targets[self.target_column].iloc[0] if len(self.possible_targets) == 1 else None
         
+        # Check if we're at the initial state and have preloaded first guesses
+        if len(self.possible_targets) == len(self.data):
+            first_guess = self.get_optimal_first_guess_for_current_state()
+            if first_guess:
+                return first_guess
+        
+        # Use parallel processing for optimal guess calculation
+        return self._get_optimal_guess_parallel()
+    
+    def _get_optimal_guess_parallel(self) -> Optional[str]:
+        """
+        Find the optimal guess using parallel processing.
+        """
+        all_targets = self.data[self.target_column].tolist()
+        current_possible_targets = self.possible_targets[self.target_column].tolist()
+        
+        # If we have very few possible targets, use the original method for speed
+        if len(current_possible_targets) <= 10:
+            return self._get_optimal_guess_sequential()
+        
+        # Prepare arguments for parallel processing
+        args_list = []
+        for guess in all_targets:
+            args = (
+                self.data,
+                self.target_column,
+                self.yes_or_no,
+                self.orderable,
+                self.partial_matchable,
+                guess,
+                current_possible_targets  # Use current possible targets, not all targets
+            )
+            args_list.append(args)
+        
+        best_guess = None
+        best_expected_entropy = float('inf')
+        
+        # Use ProcessPoolExecutor for parallel processing
+        with concurrent.futures.ProcessPoolExecutor() as executor:
+            # Submit all tasks and collect results
+            future_to_guess = {executor.submit(calculate_entropy_for_guess_parallel, args): args[5] for args in args_list}
+            
+            for future in concurrent.futures.as_completed(future_to_guess):
+                guess, expected_entropy = future.result()
+                
+                # Check cache first
+                cache_key = self._get_cache_key(guess)
+                if cache_key in self.entropy_cache:
+                    expected_entropy = self.entropy_cache[cache_key]
+                else:
+                    self.entropy_cache[cache_key] = expected_entropy
+                
+                if expected_entropy < best_expected_entropy:
+                    best_expected_entropy = expected_entropy
+                    best_guess = guess
+        
+        return best_guess
+    
+    def _get_optimal_guess_sequential(self) -> Optional[str]:
+        """
+        Find the optimal guess using the original sequential method.
+        Used for small target pools where parallel overhead isn't worth it.
+        """
         all_targets = self.data[self.target_column].tolist()
         best_guess = None
         best_expected_entropy = float('inf')
@@ -214,15 +433,9 @@ class GameDleSolver(ABC):
         for target in self.possible_targets[self.target_column]:
             feedback = self._simulate_feedback(guess_target, target)
             
-            # Create a temporary solver instance with the same data
-            temp_solver = self.__class__()
-            temp_solver.data = self.data
-            temp_solver.target_column = self.target_column
-            temp_solver.possible_targets = self.possible_targets.copy()
-            temp_solver._define_category_types()  # Re-define category types
-            temp_solver.apply_guess(guess_target, feedback)
+            # Manually apply the feedback to count remaining targets without creating solver instances
+            remaining_count = self._count_remaining_targets_after_feedback(guess_target, feedback, self.possible_targets[self.target_column].tolist())
             
-            remaining_count = temp_solver.get_target_count()
             if remaining_count > 0:
                 p = remaining_count / len(self.possible_targets)
                 expected_entropy += p * math.log2(remaining_count)
@@ -408,3 +621,249 @@ class GameDleSolver(ABC):
                     print(f"Invalid input. Please enter one of: {valid_options} or 'guessed'")
         
         return feedback 
+
+    def _get_optimal_guesses_filename(self) -> str:
+        """Get the filename for storing optimal first guesses"""
+        return "optimal_guesses.json"
+
+    def _load_optimal_first_guesses(self):
+        filename = self._get_optimal_guesses_filename()
+        game_name = self.get_display_name()
+        
+        if os.path.exists(filename):
+            try:
+                with open(filename, 'r') as f:
+                    all_guesses = json.load(f)
+                
+                if isinstance(all_guesses, dict) and game_name in all_guesses:
+                    self.optimal_first_guesses = all_guesses[game_name]
+                    if isinstance(self.optimal_first_guesses, str):
+                        print(f"Loaded optimal first guess for {game_name}: {self.optimal_first_guesses}")
+                    else:
+                        print(f"Optimal guess for {game_name} is not a string. Recalculating.")
+                        self.optimal_first_guesses = None
+                else:
+                    print(f"Optimal guess for {game_name} not found in {filename}. Will calculate on first run.")
+                    self.optimal_first_guesses = None
+            except Exception as e:
+                print(f"Error loading optimal guesses from {filename}: {e}")
+                self.optimal_first_guesses = None
+        else:
+            print(f"Optimal guesses file {filename} not found. Will calculate on first run.")
+            self.optimal_first_guesses = None
+
+    def _save_optimal_first_guesses(self):
+        if self.optimal_first_guesses is None:
+            return
+            
+        filename = self._get_optimal_guesses_filename()
+        game_name = self.get_display_name()
+        
+        try:
+            # Load existing guesses or create new dict
+            all_guesses = {}
+            if os.path.exists(filename):
+                with open(filename, 'r') as f:
+                    all_guesses = json.load(f)
+            
+            # Update with new guess
+            all_guesses[game_name] = self.optimal_first_guesses
+            
+            # Save back to file
+            with open(filename, 'w') as f:
+                json.dump(all_guesses, f, indent=2)
+            print(f"Saved optimal first guess for {game_name}: {self.optimal_first_guesses}")
+        except Exception as e:
+            print(f"Error saving optimal guesses to {filename}: {e}")
+    
+    def _calculate_optimal_first_guesses(self) -> str:
+        """
+        Calculate the optimal first guess that works well across all targets.
+        This is computationally expensive and should only be done once.
+        Uses parallel processing for significant speedup.
+        """
+        print("Calculating optimal first guess using parallel processing... This may take a while.")
+        
+        all_targets = self.data[self.target_column].tolist()
+        print(f"Total targets to evaluate: {len(all_targets)}")
+        
+        # Prepare arguments for parallel processing
+        args_list = []
+        for guess in all_targets:
+            args = (
+                self.data,
+                self.target_column,
+                self.yes_or_no,
+                self.orderable,
+                self.partial_matchable,
+                guess,
+                all_targets
+            )
+            args_list.append(args)
+        
+        best_guess = None
+        best_overall_entropy = float('inf')
+        
+        # Use ProcessPoolExecutor for parallel processing
+        with concurrent.futures.ProcessPoolExecutor() as executor:
+            print(f"Starting parallel processing with {executor._max_workers} workers...")
+            
+            # Submit all tasks and collect results
+            future_to_guess = {executor.submit(calculate_entropy_for_guess_parallel, args): args[5] for args in args_list}
+            
+            completed = 0
+            for future in concurrent.futures.as_completed(future_to_guess):
+                guess, avg_entropy = future.result()
+                completed += 1
+                print(f"Completed {completed}/{len(all_targets)}: '{guess}' - entropy: {avg_entropy:.2f}")
+                
+                if avg_entropy < best_overall_entropy:
+                    best_overall_entropy = avg_entropy
+                    best_guess = guess
+                    print(f"    NEW BEST GUESS: {best_guess} (entropy: {best_overall_entropy:.2f})")
+        
+        print(f"Best overall first guess: {best_guess} (avg entropy: {best_overall_entropy:.2f})")
+        return best_guess
+    
+    def _calculate_expected_entropy_isolated(self, guess_target: str) -> float:
+        """
+        Calculate expected entropy for a guess without creating temporary solver instances.
+        This method is isolated and doesn't trigger loading/saving logic.
+        """
+        expected_entropy = 0
+        total_outcomes = 0
+        
+        # Use the current state of possible_targets (should be all targets during precompute)
+        current_possible_targets = self.possible_targets[self.target_column].tolist()
+        
+        for idx, target in enumerate(current_possible_targets):
+            if idx % 50 == 0:
+                print(f"      [debug] Entropy calc for guess '{guess_target}': {idx+1}/{len(current_possible_targets)} targets")
+            feedback = self._simulate_feedback(guess_target, target)
+            
+            # Manually apply the feedback to count remaining targets
+            remaining_count = self._count_remaining_targets_after_feedback(guess_target, feedback, current_possible_targets)
+            
+            if remaining_count > 0:
+                p = remaining_count / len(current_possible_targets)
+                expected_entropy += p * math.log2(remaining_count)
+                total_outcomes += 1
+        
+        if total_outcomes > 0:
+            expected_entropy /= total_outcomes
+        
+        return expected_entropy
+    
+    def _count_remaining_targets_after_feedback(self, guess_target: str, feedback: Dict[str, str], possible_targets: List[str]) -> int:
+        """
+        Count how many targets would remain after applying feedback, without creating solver instances.
+        """
+        remaining_count = 0
+        
+        for target in possible_targets:
+            # Check if this target is compatible with the feedback
+            if self._target_compatible_with_feedback(target, guess_target, feedback):
+                remaining_count += 1
+        
+        return remaining_count
+    
+    def _target_compatible_with_feedback(self, target: str, guess_target: str, feedback: Dict[str, str]) -> bool:
+        """
+        Check if a target is compatible with the given feedback for a guess.
+        """
+        # Get the data for both target and guess
+        target_data = self.data[self.data[self.target_column] == target].iloc[0]
+        guess_data = self.data[self.data[self.target_column] == guess_target].iloc[0]
+        
+        # Check target name feedback
+        if feedback.get(self.target_column.lower()) == 'correct':
+            return target == guess_target
+        elif feedback.get(self.target_column.lower()) == 'incorrect':
+            if target == guess_target:
+                return False
+        
+        # Check yes/no categories
+        for category in self.yes_or_no:
+            feedback_key = category.lower()
+            if feedback_key in feedback:
+                if feedback[feedback_key] == 'correct':
+                    if target_data[category] != guess_data[category]:
+                        return False
+                elif feedback[feedback_key] == 'incorrect':
+                    if target_data[category] == guess_data[category]:
+                        return False
+        
+        # Check orderable categories
+        for category in self.orderable:
+            feedback_key = category.lower()
+            if feedback_key in feedback:
+                if feedback[feedback_key] == 'lower':
+                    if target_data[category] >= guess_data[category]:
+                        return False
+                elif feedback[feedback_key] == 'higher':
+                    if target_data[category] <= guess_data[category]:
+                        return False
+                elif feedback[feedback_key] == 'correct':
+                    if target_data[category] != guess_data[category]:
+                        return False
+        
+        # Check partial matchable categories
+        for category in self.partial_matchable:
+            feedback_key = category.lower()
+            if feedback_key in feedback:
+                target_value = target_data[category]
+                guess_value = guess_data[category]
+                
+                if feedback[feedback_key] == 'correct':
+                    if target_value != guess_value:
+                        return False
+                elif feedback[feedback_key] == 'incorrect':
+                    # Check if there's any overlap
+                    if ',' in str(target_value) and ',' in str(guess_value):
+                        target_values = set(val.strip() for val in str(target_value).split(','))
+                        guess_values = set(val.strip() for val in str(guess_value).split(','))
+                        if target_values & guess_values:  # If there's any overlap
+                            return False
+                    elif target_value == guess_value:
+                        return False
+                elif feedback[feedback_key] == 'partial':
+                    # Check if there's partial overlap but not exact match
+                    if ',' in str(target_value) and ',' in str(guess_value):
+                        target_values = set(val.strip() for val in str(target_value).split(','))
+                        guess_values = set(val.strip() for val in str(guess_value).split(','))
+                        overlap = target_values & guess_values
+                        if not overlap or target_values == guess_values:  # No overlap or exact match
+                            return False
+                    else:
+                        # For single values, partial is not possible
+                        return False
+        
+        return True
+    
+    def get_optimal_first_guess(self) -> Optional[str]:
+        if self.optimal_first_guesses is None:
+            self.optimal_first_guesses = self._calculate_optimal_first_guesses()
+            self._save_optimal_first_guesses()
+        
+        return self.optimal_first_guesses
+    
+    def get_optimal_first_guess_for_current_state(self) -> Optional[str]:
+        """
+        Get the optimal first guess for the current game state.
+        If we're at the beginning (all targets possible), use preloaded guess.
+        Otherwise, fall back to the regular optimal guess calculation.
+        """
+        # Check if we're at the initial state (all targets possible)
+        if len(self.possible_targets) == len(self.data):
+            # We're at the beginning, use preloaded optimal first guess
+            optimal_guess = self.get_optimal_first_guess()
+            if optimal_guess:
+                print(f"Using preloaded optimal first guess: {optimal_guess}")
+                return optimal_guess
+        
+        # Not at initial state or no preloaded guesses, use regular optimal guess calculation
+        # Avoid recursive call by directly using the parallel or sequential method
+        if len(self.possible_targets) <= 10:
+            return self._get_optimal_guess_sequential()
+        else:
+            return self._get_optimal_guess_parallel() 

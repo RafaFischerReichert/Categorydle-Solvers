@@ -37,7 +37,7 @@ class LolDleSolver(GameDleSolver):
     
     def get_display_name(self) -> str:
         """Return the display name for this game"""
-        return "LolDle"
+        return "Loldle"
 
 if __name__ == "__main__":
     # Run discovery mode
