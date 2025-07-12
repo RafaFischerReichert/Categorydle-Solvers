@@ -13,17 +13,17 @@ def calculate_entropy_for_guess_parallel(args):
     Calculate entropy for a single guess in a separate process.
     This function must be at module level for multiprocessing.
     """
-    data, target_column, yes_or_no, orderable, partial_matchable, guess_target, all_targets = args
+    data, target_column, yes_or_no, orderable, partial_matchable, guess_target, current_possible_targets = args
     
     expected_entropy = 0
     total_outcomes = 0
     
-    for target in all_targets:
+    for target in current_possible_targets:
         feedback = simulate_feedback_parallel(data, target_column, yes_or_no, orderable, partial_matchable, guess_target, target)
-        remaining_count = count_remaining_targets_after_feedback_parallel(data, target_column, yes_or_no, orderable, partial_matchable, guess_target, feedback, all_targets)
+        remaining_count = count_remaining_targets_after_feedback_parallel(data, target_column, yes_or_no, orderable, partial_matchable, guess_target, feedback, current_possible_targets)
         
         if remaining_count > 0:
-            p = remaining_count / len(all_targets)
+            p = remaining_count / len(current_possible_targets)
             expected_entropy += p * math.log2(remaining_count)
             total_outcomes += 1
     
@@ -211,7 +211,7 @@ class GameDleSolver(ABC):
     def get_display_name(self) -> str:
         """
         Return the display name for this game.
-        Override this method to return the game name (e.g., "LolDle", "PokéDle", etc.)
+        Override this method to return the game name (e.g., "Loldle", "PokéDle", etc.)
         """
         pass
     
@@ -344,6 +344,10 @@ class GameDleSolver(ABC):
         if len(self.possible_targets) <= 1:
             return self.possible_targets[self.target_column].iloc[0] if len(self.possible_targets) == 1 else None
         
+        # If there are exactly 2 possibilities, just pick one of them
+        if len(self.possible_targets) == 2:
+            return self.possible_targets[self.target_column].iloc[0]
+        
         # Check if we're at the initial state and have preloaded first guesses
         if len(self.possible_targets) == len(self.data):
             first_guess = self.get_optimal_first_guess_for_current_state()
@@ -357,7 +361,6 @@ class GameDleSolver(ABC):
         """
         Find the optimal guess using parallel processing.
         """
-        all_targets = self.data[self.target_column].tolist()
         current_possible_targets = self.possible_targets[self.target_column].tolist()
         
         # If we have very few possible targets, use the original method for speed
@@ -366,7 +369,7 @@ class GameDleSolver(ABC):
         
         # Prepare arguments for parallel processing
         args_list = []
-        for guess in all_targets:
+        for guess in current_possible_targets:
             args = (
                 self.data,
                 self.target_column,
@@ -374,7 +377,7 @@ class GameDleSolver(ABC):
                 self.orderable,
                 self.partial_matchable,
                 guess,
-                current_possible_targets  # Use current possible targets, not all targets
+                current_possible_targets
             )
             args_list.append(args)
         
@@ -407,11 +410,11 @@ class GameDleSolver(ABC):
         Find the optimal guess using the original sequential method.
         Used for small target pools where parallel overhead isn't worth it.
         """
-        all_targets = self.data[self.target_column].tolist()
+        current_possible_targets = self.possible_targets[self.target_column].tolist()
         best_guess = None
         best_expected_entropy = float('inf')
         
-        for guess_target in all_targets:
+        for guess_target in current_possible_targets:
             cache_key = self._get_cache_key(guess_target)
             if cache_key in self.entropy_cache:
                 expected_entropy = self.entropy_cache[cache_key]
@@ -599,14 +602,44 @@ class GameDleSolver(ABC):
         print(f"\nEnter feedback for each category:")
         print("For yes/no categories: 'correct' or 'incorrect'")
         print("For partial categories: 'correct', 'partial', or 'incorrect'")
-        print("For orderable categories: 'lower', 'higher', or 'correct'")
+        print("For orderable categories: 'lower'/'before', 'higher'/'after', or 'correct'")
         print("(Press Enter to skip a category)")
         print("Type 'guessed' for any category if you found the correct target!")
+        print("You can also type just the first letter of an option (e.g., 'c' for 'correct', 'i' for 'incorrect', 'l'/'b' for 'lower'/'before', 'h'/'a' for 'higher'/'after').")
         
         feedback = {}
         categories = self.get_category_config()
         
         for category, valid_options in categories:
+            # For orderable categories, add synonyms
+            synonyms = {}
+            if category.lower() in [c.lower() for c in getattr(self, 'orderable', [])]:
+                # Add synonyms for orderable feedback
+                new_valid_options = []
+                for opt in valid_options:
+                    if opt == 'higher':
+                        new_valid_options.extend(['higher', 'after'])
+                        synonyms['h'] = 'higher'
+                        synonyms['a'] = 'higher'
+                    elif opt == 'lower':
+                        new_valid_options.extend(['lower', 'before'])
+                        synonyms['l'] = 'lower'
+                        synonyms['b'] = 'lower'
+                    else:
+                        new_valid_options.append(opt)
+                        synonyms[opt[0]] = opt
+                valid_options = list(dict.fromkeys(new_valid_options))  # Remove duplicates, preserve order
+            else:
+                # For non-orderable, map first letter to option
+                synonyms = {opt[0]: opt for opt in valid_options}
+            # Build a mapping from first letter to valid options
+            first_letter_map = {}
+            for opt in valid_options:
+                letter = opt[0].lower()
+                if letter not in first_letter_map:
+                    first_letter_map[letter] = [opt]
+                else:
+                    first_letter_map[letter].append(opt)
             while True:
                 user_input = input(f"{category}: ").strip().lower()
                 if user_input == '':
@@ -615,10 +648,32 @@ class GameDleSolver(ABC):
                     feedback[self.target_column.lower()] = 'correct'
                     return feedback
                 elif user_input in valid_options:
-                    feedback[category] = user_input
+                    # Normalize synonyms for orderable
+                    if user_input in ['after', 'a']:
+                        feedback[category] = 'higher'
+                    elif user_input in ['before', 'b']:
+                        feedback[category] = 'lower'
+                    else:
+                        feedback[category] = user_input
                     break
+                elif len(user_input) == 1 and user_input in synonyms:
+                    feedback[category] = synonyms[user_input]
+                    break
+                elif len(user_input) == 1 and user_input in first_letter_map:
+                    options = first_letter_map[user_input]
+                    if len(options) == 1:
+                        # Normalize synonyms for orderable
+                        if options[0] in ['after', 'a']:
+                            feedback[category] = 'higher'
+                        elif options[0] in ['before', 'b']:
+                            feedback[category] = 'lower'
+                        else:
+                            feedback[category] = options[0]
+                        break
+                    else:
+                        print(f"Ambiguous input. The letter '{user_input}' could mean any of: {options}. Please type the full word.")
                 else:
-                    print(f"Invalid input. Please enter one of: {valid_options} or 'guessed'")
+                    print(f"Invalid input. Please enter one of: {valid_options}, their first letter, or 'guessed'")
         
         return feedback 
 
