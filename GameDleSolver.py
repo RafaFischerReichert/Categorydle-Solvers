@@ -539,8 +539,7 @@ class GameDleSolver(ABC):
                 for key, value in target_info.items():
                     print(f"   {key}: {value}")
             
-            print(f"\n➡️  Now go to the game and guess: {optimal_guess}")
-            print("   Then come back and tell me what feedback you got!")
+            print(f"\n➡️ Suggested guess: {optimal_guess}")
             
             feedback = self._get_user_feedback()
             
