@@ -249,7 +249,7 @@ class GameDleSolver(ABC):
     
     def _apply_yes_or_no_filters(self, guessed_target: pd.Series, feedback: Dict[str, str]):
         """Apply filters for yes/no categories"""
-        for category in self.yes_or_no:
+        for category in self.yes_or_no: # type: ignore
             feedback_key = category.lower()
             column_name = category
             if feedback_key in feedback:
@@ -262,7 +262,7 @@ class GameDleSolver(ABC):
     
     def _apply_orderable_filters(self, guessed_target: pd.Series, feedback: Dict[str, str]):
         """Apply filters for orderable categories"""
-        for category in self.orderable:
+        for category in self.orderable: # type: ignore
             feedback_key = category.lower()
             column_name = category
             if feedback_key in feedback:
@@ -277,7 +277,7 @@ class GameDleSolver(ABC):
     
     def _apply_partial_matchable_filters(self, guessed_target: pd.Series, feedback: Dict[str, str]):
         """Apply filters for partial matchable categories"""
-        for category in self.partial_matchable:
+        for category in self.partial_matchable: # type: ignore
             feedback_key = category.lower()
             column_name = category
             if feedback_key in feedback:
@@ -373,9 +373,9 @@ class GameDleSolver(ABC):
             args = (
                 self.data,
                 self.target_column,
-                self.yes_or_no,
-                self.orderable,
-                self.partial_matchable,
+                self.yes_or_no, # type: ignore
+                self.orderable, # type: ignore
+                self.partial_matchable, # type: ignore
                 guess,
                 current_possible_targets
             )
@@ -460,21 +460,21 @@ class GameDleSolver(ABC):
         feedback[self.target_column.lower()] = 'correct' if guess_target == target else 'incorrect'
         
         # Yes/No categories
-        for category in self.yes_or_no:
-            feedback[category.lower()] = 'correct' if guess_data[category] == target_data[category] else 'incorrect'
+        for category in self.yes_or_no: # type: ignore
+            feedback[category.lower()] = 'correct' if guess_data[category] == target_data[category] else 'incorrect' # type: ignore
         
         # Orderable categories
-        for category in self.orderable:
+        for category in self.orderable: # type: ignore
             # Corrected logic: compare target to guess
-            if target_data[category] < guess_data[category]:
+            if target_data[category] < guess_data[category]: # type: ignore
                 feedback[category.lower()] = 'lower'
-            elif target_data[category] > guess_data[category]:
+            elif target_data[category] > guess_data[category]: # type: ignore
                 feedback[category.lower()] = 'higher'
             else:
                 feedback[category.lower()] = 'correct'
         
         # Partial matchable categories
-        for category in self.partial_matchable:
+        for category in self.partial_matchable: # type: ignore
             guess_value = guess_data[category]
             target_value = target_data[category]
             
@@ -489,7 +489,7 @@ class GameDleSolver(ABC):
                 else:
                     feedback[category.lower()] = 'incorrect'
             else:
-                if guess_value == target_value:
+                if guess_value == target_value: # type: ignore
                     feedback[category.lower()] = 'correct'
                 else:
                     feedback[category.lower()] = 'incorrect'
@@ -581,7 +581,7 @@ class GameDleSolver(ABC):
             print(f"   Total guesses: {guess_count}")
             # Determine the final answer
             final_answer = 'Not found'
-            if feedback.get(self.target_column.lower()) == 'correct':
+            if feedback.get(self.target_column.lower()) == 'correct': # type: ignore
                 final_answer = optimal_guess
             elif self.get_target_count() == 0 and len(game_history) > 0:
                 final_answer = game_history[-1]['guess']
@@ -747,9 +747,9 @@ class GameDleSolver(ABC):
             args = (
                 self.data,
                 self.target_column,
-                self.yes_or_no,
-                self.orderable,
-                self.partial_matchable,
+                self.yes_or_no, # type: ignore
+                self.orderable, # type: ignore
+                self.partial_matchable, # type: ignore
                 guess,
                 all_targets
             )
@@ -760,7 +760,7 @@ class GameDleSolver(ABC):
         
         # Use ProcessPoolExecutor for parallel processing
         with concurrent.futures.ProcessPoolExecutor() as executor:
-            print(f"Starting parallel processing with {executor._max_workers} workers...")
+            print(f"Starting parallel processing with {executor._max_workers} workers...") # type: ignore
             
             # Submit all tasks and collect results
             future_to_guess = {executor.submit(calculate_entropy_for_guess_parallel, args): args[5] for args in args_list}
@@ -777,7 +777,7 @@ class GameDleSolver(ABC):
                     print(f"    NEW BEST GUESS: {best_guess} (entropy: {best_overall_entropy:.2f})")
         
         print(f"Best overall first guess: {best_guess} (avg entropy: {best_overall_entropy:.2f})")
-        return best_guess
+        return best_guess # type: ignore
     
     def _calculate_expected_entropy_isolated(self, guess_target: str) -> float:
         """
@@ -837,39 +837,39 @@ class GameDleSolver(ABC):
                 return False
         
         # Check yes/no categories
-        for category in self.yes_or_no:
+        for category in self.yes_or_no: # type: ignore
             feedback_key = category.lower()
             if feedback_key in feedback:
                 if feedback[feedback_key] == 'correct':
-                    if target_data[category] != guess_data[category]:
+                    if target_data[category] != guess_data[category]: # type: ignore
                         return False
                 elif feedback[feedback_key] == 'incorrect':
-                    if target_data[category] == guess_data[category]:
+                    if target_data[category] == guess_data[category]: # type: ignore
                         return False
         
         # Check orderable categories
-        for category in self.orderable:
+        for category in self.orderable: # type: ignore
             feedback_key = category.lower()
             if feedback_key in feedback:
                 if feedback[feedback_key] == 'lower':
-                    if target_data[category] >= guess_data[category]:
+                    if target_data[category] >= guess_data[category]: # type: ignore
                         return False
                 elif feedback[feedback_key] == 'higher':
-                    if target_data[category] <= guess_data[category]:
+                    if target_data[category] <= guess_data[category]: # type: ignore
                         return False
                 elif feedback[feedback_key] == 'correct':
-                    if target_data[category] != guess_data[category]:
+                    if target_data[category] != guess_data[category]: # type: ignore
                         return False
         
         # Check partial matchable categories
-        for category in self.partial_matchable:
+        for category in self.partial_matchable: # type: ignore
             feedback_key = category.lower()
             if feedback_key in feedback:
                 target_value = target_data[category]
                 guess_value = guess_data[category]
                 
                 if feedback[feedback_key] == 'correct':
-                    if target_value != guess_value:
+                    if target_value != guess_value: # type: ignore
                         return False
                 elif feedback[feedback_key] == 'incorrect':
                     # Check if there's any overlap
@@ -878,7 +878,7 @@ class GameDleSolver(ABC):
                         guess_values = set(val.strip() for val in str(guess_value).split(','))
                         if target_values & guess_values:  # If there's any overlap
                             return False
-                    elif target_value == guess_value:
+                    elif target_value == guess_value: # type: ignore
                         return False
                 elif feedback[feedback_key] == 'partial':
                     # Check if there's partial overlap but not exact match
