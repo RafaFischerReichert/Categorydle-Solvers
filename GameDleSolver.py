@@ -360,14 +360,11 @@ class GameDleSolver(ABC):
     def _get_optimal_guess_parallel(self) -> Optional[str]:
         """
         Find the optimal guess using parallel processing.
+        Now uses orderable split score as a secondary ranking factor.
         """
         current_possible_targets = self.possible_targets[self.target_column].tolist()
-        
-        # If we have very few possible targets, use the original method for speed
         if len(current_possible_targets) <= 10:
             return self._get_optimal_guess_sequential()
-        
-        # Prepare arguments for parallel processing
         args_list = []
         for guess in current_possible_targets:
             args = (
@@ -380,40 +377,36 @@ class GameDleSolver(ABC):
                 current_possible_targets
             )
             args_list.append(args)
-        
         best_guess = None
         best_expected_entropy = float('inf')
-        
-        # Use ProcessPoolExecutor for parallel processing
+        best_split_score = float('inf')
         with concurrent.futures.ProcessPoolExecutor() as executor:
-            # Submit all tasks and collect results
             future_to_guess = {executor.submit(calculate_entropy_for_guess_parallel, args): args[5] for args in args_list}
-            
             for future in concurrent.futures.as_completed(future_to_guess):
                 guess, expected_entropy = future.result()
-                
-                # Check cache first
                 cache_key = self._get_cache_key(guess)
                 if cache_key in self.entropy_cache:
                     expected_entropy = self.entropy_cache[cache_key]
                 else:
                     self.entropy_cache[cache_key] = expected_entropy
-                
-                if expected_entropy < best_expected_entropy:
+                split_score = self._orderable_split_score(guess, current_possible_targets)
+                if (expected_entropy < best_expected_entropy or
+                    (math.isclose(expected_entropy, best_expected_entropy) and split_score < best_split_score)):
                     best_expected_entropy = expected_entropy
+                    best_split_score = split_score
                     best_guess = guess
-        
         return best_guess
     
     def _get_optimal_guess_sequential(self) -> Optional[str]:
         """
         Find the optimal guess using the original sequential method.
         Used for small target pools where parallel overhead isn't worth it.
+        Now uses orderable split score as a secondary ranking factor.
         """
         current_possible_targets = self.possible_targets[self.target_column].tolist()
         best_guess = None
         best_expected_entropy = float('inf')
-        
+        best_split_score = float('inf')
         for guess_target in current_possible_targets:
             cache_key = self._get_cache_key(guess_target)
             if cache_key in self.entropy_cache:
@@ -421,11 +414,12 @@ class GameDleSolver(ABC):
             else:
                 expected_entropy = self._calculate_expected_entropy(guess_target)
                 self.entropy_cache[cache_key] = expected_entropy
-            
-            if expected_entropy < best_expected_entropy:
+            split_score = self._orderable_split_score(guess_target, current_possible_targets)
+            if (expected_entropy < best_expected_entropy or
+                (math.isclose(expected_entropy, best_expected_entropy) and split_score < best_split_score)):
                 best_expected_entropy = expected_entropy
+                best_split_score = split_score
                 best_guess = guess_target
-        
         return best_guess
     
     def _calculate_expected_entropy(self, guess_target: str) -> float:
@@ -522,24 +516,23 @@ class GameDleSolver(ABC):
         
         while True:
             print(f"\n--- Round {guess_count + 1} ---")
-            print(f"Possible targets remaining: {self.get_target_count()}")
-            print(f"Remaining targets: {self.get_possible_targets()}")
             
             optimal_guess = self.get_optimal_guess()
             if optimal_guess is None:
                 print("No more possible targets!")
                 break
             
-            print(f"\n🎯 SUGGESTED GUESS: {optimal_guess}")
-            
             # Show target info for reference
             target_info = self.get_target_info(optimal_guess)
             if target_info:
-                print(f"📋 Target Info:")
+                print(f"\U0001F4CB Target Info:")
                 for key, value in target_info.items():
                     print(f"   {key}: {value}")
             
-            print(f"\n➡️ Suggested guess: {optimal_guess}")
+            print(f"Possible targets remaining: {self.get_target_count()}")
+            print(f"Remaining targets: {self.get_possible_targets()}")
+            
+            print(f"\n\u27A1\uFE0F Suggested guess: {optimal_guess}")
             
             feedback = self._get_user_feedback()
             
@@ -921,3 +914,28 @@ class GameDleSolver(ABC):
             return self._get_optimal_guess_sequential()
         else:
             return self._get_optimal_guess_parallel() 
+
+    def _orderable_split_score(self, guess_target: str, possible_targets: Optional[List[str]] = None) -> int:
+        """
+        Compute the split score for orderable categories for a guess.
+        The score is the size of the largest group after splitting possible_targets by all orderable feedbacks.
+        Lower is better (more even split).
+        """
+        if possible_targets is None:
+            possible_targets = self.possible_targets[self.target_column].tolist()
+        guess_data = self.data[self.data[self.target_column] == guess_target].iloc[0]
+        max_group_size = 0
+        for category in self.orderable:  # type: ignore
+            lower_count = 0
+            higher_count = 0
+            correct_count = 0
+            for target in possible_targets:
+                target_data = self.data[self.data[self.target_column] == target].iloc[0]
+                if target_data[category] < guess_data[category]: # type: ignore
+                    lower_count += 1
+                elif target_data[category] > guess_data[category]: # type: ignore
+                    higher_count += 1
+                else:
+                    correct_count += 1
+            max_group_size = max(max_group_size, lower_count, higher_count, correct_count)
+        return max_group_size 
